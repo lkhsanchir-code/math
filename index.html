@@ -1,0 +1,1093 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mathematics Quiz</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --purple:  #6D28D9;
+      --gold:    #F59E0B;
+      --pale:    #F5F3FF;
+      --paper:   #FFFFFF;
+      --ink:     #1E1B4B;
+      --teal:    #0D9488;
+      --violet:  #4C1D95;
+      --purple2: #8B5CF6;
+      --silver:  #94A3B8;
+      --bronze:  #B45309;
+      --fd: 'Playfair Display', serif;
+      --fb: 'Inter', sans-serif;
+      --border:  3px solid var(--ink);
+      --r:       16px;
+      --rl:      24px;
+      --sh:      0 8px 0 var(--ink);
+      --shs:     0 4px 0 var(--ink);
+    }
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:var(--fb);background:var(--pale);min-height:100vh;overflow-x:hidden;position:relative}
+
+    body::before,body::after{
+      content:'π';
+      position:fixed;font-family:'Playfair Display',serif;font-size:300px;font-weight:900;
+      color:rgba(109,40,217,.05);z-index:0;pointer-events:none;
+      animation:bob 6s ease-in-out infinite;
+    }
+    body::before{top:-50px;left:-80px}
+    body::after{content:'∑';bottom:-50px;right:-80px;animation-delay:-3s}
+    @keyframes bob{0%,100%{transform:translateY(0) rotate(-5deg)}50%{transform:translateY(-20px) rotate(5deg)}}
+
+    /* NAV */
+    #nav{position:fixed;top:16px;right:16px;z-index:100;display:flex;gap:8px}
+    .nl{background:var(--paper);border:var(--border);border-radius:999px;padding:8px 18px;
+        font-family:var(--fb);font-weight:700;font-size:14px;cursor:pointer;text-decoration:none;
+        color:var(--ink);box-shadow:var(--shs);transition:transform .1s,box-shadow .1s}
+    .nl:hover{transform:translateY(-2px);box-shadow:0 6px 0 var(--ink)}
+    .nl:active{transform:translateY(2px);box-shadow:0 2px 0 var(--ink)}
+
+    #root{position:relative;z-index:1;min-height:100vh;padding:80px 16px 40px}
+    body.tv-mode #nav{display:none}
+    body.tv-mode #root{padding:0}
+
+    .container{max-width:620px;margin:0 auto}
+    .card{background:var(--paper);border:var(--border);border-radius:var(--rl);padding:32px;box-shadow:var(--sh)}
+
+    /* BUTTONS */
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;
+         padding:14px 28px;border:var(--border);border-radius:var(--r);
+         font-family:var(--fb);font-weight:800;font-size:16px;cursor:pointer;
+         box-shadow:var(--shs);transition:transform .1s,box-shadow .1s;text-decoration:none}
+    .btn:hover{transform:translateY(-3px);box-shadow:0 7px 0 var(--ink)}
+    .btn:active{transform:translateY(2px);box-shadow:0 2px 0 var(--ink)}
+    .btn:disabled{opacity:.4;cursor:not-allowed;transform:none!important;box-shadow:var(--shs)!important}
+    .btn-purple{background:var(--purple);color:#fff}
+    .btn-gold{background:var(--gold);color:var(--ink)}
+    .btn-teal{background:var(--teal);color:#fff}
+    .btn-ink{background:var(--ink);color:#fff}
+    .btn-ghost{background:transparent;color:var(--ink)}
+    .btn-sm{padding:8px 16px;font-size:14px}
+    .btn-lg{padding:18px 40px;font-size:20px}
+
+    /* INPUTS */
+    input,select,textarea{width:100%;padding:12px 16px;border:var(--border);border-radius:var(--r);
+      font-family:var(--fb);font-size:16px;background:var(--pale);color:var(--ink);
+      outline:none;transition:box-shadow .2s}
+    input:focus,select:focus,textarea:focus{box-shadow:0 0 0 3px rgba(109,40,217,.3)}
+    label{display:block;font-weight:700;font-size:13px;text-transform:uppercase;
+          letter-spacing:.05em;margin-bottom:6px;color:var(--ink)}
+    .field{margin-bottom:20px}
+
+    /* BANNER */
+    .banner{background:var(--purple);color:#fff;padding:20px 32px;border:var(--border);
+            border-radius:var(--rl);box-shadow:var(--sh);transform:rotate(-1deg);
+            margin-bottom:24px;position:relative;text-align:center}
+    .bd{position:absolute;width:18px;height:18px;background:var(--gold);border:2px solid #fff;border-radius:50%}
+    .bd.tl{top:10px;left:10px}.bd.tr{top:10px;right:10px}
+    .bd.bl{bottom:10px;left:10px}.bd.br{bottom:10px;right:10px}
+    .banner h1{font-family:'Playfair Display',serif;font-size:52px;font-weight:900;line-height:1}
+    .banner .sub{font-size:12px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;margin-top:4px;opacity:.85}
+
+    /* PROGRESS */
+    .pbw{width:100%;height:10px;background:rgba(0,0,0,.1);border-radius:999px;
+         border:2px solid var(--ink);overflow:hidden;margin-bottom:16px}
+    .pbf{height:100%;background:var(--purple);border-radius:999px;transition:width .3s ease}
+
+    /* OPTIONS */
+    .opt{width:100%;padding:16px;border:var(--border);border-radius:var(--r);
+         background:var(--pale);color:var(--ink);font-family:var(--fb);font-size:16px;
+         font-weight:600;cursor:pointer;box-shadow:var(--shs);
+         transition:transform .1s,box-shadow .1s,background .1s;text-align:left}
+    .opt:hover{transform:translateY(-2px);box-shadow:0 6px 0 var(--ink)}
+    .opt:active{transform:translateY(2px);box-shadow:0 2px 0 var(--ink)}
+    .opt.sel{background:var(--purple);color:#fff;animation:pop .2s ease}
+    @keyframes pop{0%{transform:scale(1)}50%{transform:scale(1.05)}100%{transform:scale(1)}}
+
+    .og{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:20px 0}
+    @media(max-width:600px){.og{grid-template-columns:1fr}}
+
+    /* SCORE CIRCLE */
+    .sc{width:160px;height:160px;border-radius:50%;border:var(--border);
+        display:flex;align-items:center;justify-content:center;
+        margin:0 auto 24px;box-shadow:var(--sh);position:relative}
+
+    /* PILL */
+    .pill{display:inline-flex;align-items:center;gap:4px;padding:6px 14px;
+          border:2px solid var(--ink);border-radius:999px;font-size:13px;font-weight:700;background:var(--paper)}
+
+    /* TABS */
+    .tabs{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
+    .tab{padding:10px 18px;border:var(--border);border-radius:var(--r);font-family:var(--fb);
+         font-weight:700;font-size:14px;cursor:pointer;background:var(--pale);
+         box-shadow:var(--shs);transition:transform .1s,box-shadow .1s,background .1s}
+    .tab:hover{transform:translateY(-2px);box-shadow:0 6px 0 var(--ink)}
+    .tab:active{transform:translateY(2px);box-shadow:0 2px 0 var(--ink)}
+    .tab.on{background:var(--purple);color:#fff}
+
+    /* MESSAGES */
+    .err{background:rgba(220,38,38,.1);border:2px solid #DC2626;border-radius:8px;
+         padding:10px 14px;color:#DC2626;font-weight:700;font-size:14px;margin-top:8px}
+    .ok{background:rgba(13,148,136,.1);border:2px solid var(--teal);border-radius:8px;
+        padding:10px 14px;color:var(--teal);font-weight:700;font-size:14px;margin-top:8px}
+
+    /* ADMIN CARDS */
+    .qc{background:var(--paper);border:var(--border);border-radius:var(--r);padding:16px;
+        margin-bottom:12px;display:flex;align-items:flex-start;justify-content:space-between;gap:16px}
+    .sr{background:var(--paper);border:var(--border);border-radius:var(--r);padding:12px 16px;
+        margin-bottom:8px;display:flex;align-items:center;gap:12px}
+    .pb{padding:4px 10px;border-radius:999px;font-weight:800;font-size:13px;border:2px solid var(--ink)}
+    .pg{background:rgba(13,148,136,.2);color:var(--teal)}
+    .py{background:rgba(245,158,11,.2);color:#92400E}
+    .pr{background:rgba(220,38,38,.2);color:#DC2626}
+
+    /* TV */
+    .tvbg{background:var(--ink);min-height:100vh;padding:24px;
+          background-image:radial-gradient(ellipse at 10% 20%,rgba(109,40,217,.25) 0%,transparent 60%),
+                           radial-gradient(ellipse at 90% 80%,rgba(139,92,246,.15) 0%,transparent 60%)}
+    .tvg{display:grid;grid-template-columns:1.4fr 1fr;gap:24px;margin-top:24px}
+    @media(max-width:900px){.tvg{grid-template-columns:1fr}}
+
+    .lrow{display:flex;align-items:center;gap:12px;padding:12px 16px;
+          border-radius:var(--r);margin-bottom:8px;border:2px solid transparent}
+    .lrow.r1{background:linear-gradient(135deg,rgba(245,158,11,.2),rgba(245,158,11,.05));border-color:var(--gold);transform:scale(1.04)}
+    .lrow.r2{background:linear-gradient(135deg,rgba(148,163,184,.2),rgba(148,163,184,.05));border-color:var(--silver)}
+    .lrow.r3{background:linear-gradient(135deg,rgba(180,83,9,.2),rgba(180,83,9,.05));border-color:var(--bronze)}
+
+    /* CELEBRATION */
+    #cov{position:fixed;inset:0;z-index:200;background:rgba(30,27,75,.92);
+         backdrop-filter:blur(10px);display:none;align-items:center;justify-content:center}
+    #cov.on{display:flex;animation:fi .3s ease}
+    @keyframes fi{from{opacity:0}to{opacity:1}}
+    .cc{background:var(--pale);border:6px solid var(--gold);border-radius:var(--rl);
+        box-shadow:20px 20px 0 var(--ink);padding:48px 56px;text-align:center;
+        max-width:600px;width:90%;animation:slam .5s cubic-bezier(.34,1.56,.64,1)}
+    @keyframes slam{
+      0%{transform:scale(.3) rotate(-10deg);opacity:0}
+      70%{transform:scale(1.08) rotate(2deg);opacity:1}
+      100%{transform:scale(1) rotate(0deg);opacity:1}
+    }
+    .cm{font-size:140px;line-height:1;animation:be .6s ease infinite alternate;display:block}
+    @keyframes be{from{transform:translateY(0)}to{transform:translateY(-15px)}}
+
+    #cc{position:fixed;inset:0;z-index:300;pointer-events:none}
+
+    @keyframes si{from{transform:translateX(40px);opacity:0}to{transform:translateX(0);opacity:1}}
+    .si{animation:si .3s ease}
+    @keyframes pulse{0%,100%{opacity:.3;transform:scale(.8)}50%{opacity:1;transform:scale(1.2)}}
+
+    /* MATH EXPRESSION DISPLAY */
+    .math-expr{
+      font-family:'Playfair Display',serif;
+      font-size:64px;font-weight:700;
+      text-align:center;margin:16px 0;line-height:1.1;
+      color:var(--ink);
+      letter-spacing:-1px;
+    }
+
+    button,a,.opt,.btn,.nl,.tab{
+      touch-action:manipulation;
+      -webkit-tap-highlight-color:transparent;
+    }
+
+    @media(max-width:520px){
+      body::before,body::after{font-size:160px}
+      #nav{top:10px;right:10px;gap:6px}
+      .nl{padding:6px 12px;font-size:13px}
+      #root{padding:64px 12px 32px}
+      .card{padding:20px 16px;border-radius:16px}
+      .banner{padding:16px 20px;border-radius:16px}
+      .banner h1{font-size:34px}
+      .banner .sub{font-size:11px;letter-spacing:.15em}
+      .btn{padding:14px 20px;font-size:15px;border-radius:12px;min-height:48px}
+      .btn-lg{padding:16px 20px;font-size:18px}
+      .btn-sm{padding:10px 14px;font-size:13px;min-height:40px}
+      input,select{padding:13px 14px;border-radius:12px;font-size:16px}
+      .math-expr{font-size:42px}
+      .og{grid-template-columns:1fr;gap:10px;margin:14px 0}
+      .opt{padding:18px 14px;font-size:15px;border-radius:12px;min-height:52px}
+      .quiz-header{font-size:13px}
+      .quiz-nav{gap:8px}
+      .quiz-nav .btn{flex:1;padding:14px 8px;font-size:14px}
+      .quiz-nav .pill{font-size:12px;padding:5px 10px;white-space:nowrap}
+      .sc{width:140px;height:140px}
+      .result-title{font-size:38px}
+      .result-sub{font-size:18px}
+      .tabs{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;
+            padding-bottom:4px;gap:6px}
+      .tabs::-webkit-scrollbar{height:3px}
+      .tabs::-webkit-scrollbar-thumb{background:rgba(0,0,0,.2);border-radius:99px}
+      .tab{white-space:nowrap;padding:9px 14px;font-size:13px;flex-shrink:0}
+      .qc{flex-direction:column;gap:10px}
+      .qc .btn{width:100%}
+      .cc{padding:32px 24px}
+      .cm{font-size:90px}
+      .field{margin-bottom:16px}
+    }
+
+    @media(min-width:521px) and (max-width:768px){
+      .card{padding:24px 20px}
+      .banner h1{font-size:42px}
+      .og{gap:10px}
+      .opt{padding:16px;font-size:15px}
+    }
+  </style>
+</head>
+<body>
+  <nav id="nav">
+    <a href="#/" class="nl">🏠 Home</a>
+    <a href="#/admin" class="nl">⚙️ Admin</a>
+  </nav>
+  <canvas id="cc"></canvas>
+  <div id="cov"><div id="ccard"></div></div>
+  <div id="root"></div>
+
+<script>
+
+const FIREBASE_URL = 'https://chinese-100-test-default-rtdb.firebaseio.com';
+
+// ── REMOTE SYNC ───────────────────────────────────────────────────────────────
+const REMOTE = {
+  ok(){ return typeof FIREBASE_URL==='string' && FIREBASE_URL.length>0; },
+  async get(k){
+    try{const r=await fetch(`${FIREBASE_URL}/${k}.json`);return r.ok?await r.json():null;}catch{return null;}
+  },
+  async set(k,v){
+    try{await fetch(`${FIREBASE_URL}/${k}.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(v)});}catch{}
+  },
+  async del(k){
+    try{await fetch(`${FIREBASE_URL}/${k}.json`,{method:'DELETE'});}catch{}
+  }
+};
+
+function toArr(v){
+  if(v===null||v===undefined)return null;
+  if(Array.isArray(v))return v;
+  if(typeof v==='object')return Object.values(v);
+  return null;
+}
+
+// ── STORAGE ───────────────────────────────────────────────────────────────────
+const STORE = {
+  getQuestions(){try{const q=localStorage.getItem('chq_q');return q?JSON.parse(q):null}catch{return null}},
+  setQuestions(q){
+    try{localStorage.setItem('chq_q',JSON.stringify(q));}catch{}
+    if(REMOTE.ok())REMOTE.set('chq_q',q);
+  },
+  getScores(){try{const s=localStorage.getItem('chq_s');return s?JSON.parse(s):[]}catch{return[]}},
+  addScore(e){
+    try{const s=this.getScores();s.push(e);localStorage.setItem('chq_s',JSON.stringify(s));if(REMOTE.ok())REMOTE.set('chq_s',s);}catch{}
+  },
+  clearScores(){
+    try{localStorage.removeItem('chq_s');}catch{}
+    if(REMOTE.ok())REMOTE.set('chq_s',[]);
+  },
+  getSettings(){try{const s=localStorage.getItem('chq_cfg');return s?JSON.parse(s):{numQuestions:15,adminPassword:'teacher123'}}catch{return{numQuestions:15,adminPassword:'teacher123'}}},
+  setSettings(s){
+    try{localStorage.setItem('chq_cfg',JSON.stringify(s));}catch{}
+    if(REMOTE.ok())REMOTE.set('chq_cfg',s);
+  },
+  getActive(){try{const a=localStorage.getItem('chq_active');return a?JSON.parse(a):null}catch{return null}},
+  setActive(a){
+    try{localStorage.setItem('chq_active',JSON.stringify(a));}catch{}
+    if(REMOTE.ok())REMOTE.set('chq_active',a);
+  },
+  clearActive(){
+    try{localStorage.removeItem('chq_active');}catch{}
+    if(REMOTE.ok())REMOTE.del('chq_active');
+  }
+};
+
+// ── APP INIT ──────────────────────────────────────────────────────────────────
+async function initApp(){
+  if(REMOTE.ok()){
+    try{
+      const [q,s,cfg,act]=await Promise.all([
+        REMOTE.get('chq_q'),REMOTE.get('chq_s'),
+        REMOTE.get('chq_cfg'),REMOTE.get('chq_active')
+      ]);
+      const synced=localStorage.getItem('chq_synced');
+      const qArr=toArr(q);
+      if(qArr!==null){
+        localStorage.setItem('chq_q',JSON.stringify(qArr));
+      } else if(synced){
+        localStorage.setItem('chq_q',JSON.stringify([]));
+      }
+      const sArr=toArr(s)||[];
+      localStorage.setItem('chq_s',JSON.stringify(sArr));
+      if(cfg)localStorage.setItem('chq_cfg',JSON.stringify(cfg));
+      if(act)localStorage.setItem('chq_active',JSON.stringify(act));
+      else localStorage.removeItem('chq_active');
+      localStorage.setItem('chq_synced','1');
+    }catch(e){console.warn('Firebase sync failed, using local storage',e);}
+  }
+  route();
+}
+
+// ── MATH LEVELS & QUESTIONS ───────────────────────────────────────────────────
+const MATH_LEVELS = ['Level 1', 'Level 2'];
+const MATH_DESC = {
+  'Level 1': 'Arithmetic & Foundations',
+  'Level 2': 'Algebra & Advanced',
+};
+
+const DEFAULTS = [
+  // ── Level 1: Arithmetic & Foundations ────────────────────────────────────
+  {type:'compute', zh:'7 × 8',             options:['56','48','54','63'],           answer:0, meaning:'multiplication',     level:'Level 1'},
+  {type:'compute', zh:'√81',               options:['9','7','8','6'],               answer:0, meaning:'square root',        level:'Level 1'},
+  {type:'compute', zh:'125 ÷ 5',           options:['25','20','30','15'],           answer:0, meaning:'division',           level:'Level 1'},
+  {type:'compute', zh:'2⁶',               options:['64','32','128','16'],          answer:0, meaning:'exponent',           level:'Level 1'},
+  {type:'compute', zh:'3/4 + 1/2',        options:['5/4','1/4','7/8','1'],         answer:0, meaning:'fractions',          level:'Level 1'},
+  {type:'compute', zh:'|−15|',            options:['15','−15','0','1'],            answer:0, meaning:'absolute value',     level:'Level 1'},
+  {type:'compute', zh:'15% of 80',        options:['12','10','14','8'],            answer:0, meaning:'percentage',         level:'Level 1'},
+  {type:'compute', zh:'5!',               options:['120','60','24','720'],         answer:0, meaning:'factorial',          level:'Level 1'},
+  {type:'solve',   zh:'x + 9 = 21',       options:['x = 12','x = 11','x = 13','x = 10'],answer:0,meaning:'linear eq',    level:'Level 1'},
+  {type:'identify',zh:'Smallest prime',   options:['2','1','3','0'],               answer:0, meaning:'number theory',      level:'Level 1'},
+  {type:'identify',zh:'Area: 5 × 7 rect', options:['35','28','24','40'],           answer:0, meaning:'rectangle area',     level:'Level 1'},
+  {type:'identify',zh:'Perimeter: square, side 6', options:['24','12','36','18'], answer:0, meaning:'perimeter',          level:'Level 1'},
+  {type:'identify',zh:'Hypotenuse: legs 5 & 12',   options:['13','11','15','17'], answer:0, meaning:'Pythagorean theorem',level:'Level 1'},
+  {type:'identify',zh:'Angles in △',      options:['180°','90°','270°','360°'],    answer:0, meaning:'triangle',           level:'Level 1'},
+  {type:'identify',zh:'GCD(24, 36)',       options:['12','6','18','4'],             answer:0, meaning:'number theory',      level:'Level 1'},
+  {type:'identify',zh:'π ≈',              options:['3.14159','2.71828','1.41421','1.61803'],answer:0,meaning:'constant',   level:'Level 1'},
+  {type:'identify',zh:'Sides of hexagon', options:['6','5','7','8'],               answer:0, meaning:'geometry',           level:'Level 1'},
+  {type:'compute', zh:'0.75 = ?',         options:['3/4','2/3','4/5','7/8'],       answer:0, meaning:'decimal-fraction',  level:'Level 1'},
+
+  // ── Level 2: Algebra & Advanced ──────────────────────────────────────────
+  {type:'solve',   zh:'2x + 5 = 17',      options:['x = 6','x = 5','x = 7','x = 4'],  answer:0,meaning:'linear equation',  level:'Level 2'},
+  {type:'identify',zh:'Slope of y = −4x + 3', options:['−4','3','4','−3'],         answer:0, meaning:'linear functions',   level:'Level 2'},
+  {type:'compute', zh:'Area: circle r = 5',   options:['25π','10π','5π','15π'],    answer:0, meaning:'circle area',        level:'Level 2'},
+  {type:'compute', zh:'log₃(27)',          options:['3','9','2','27'],              answer:0, meaning:'logarithm',          level:'Level 2'},
+  {type:'compute', zh:'sin(30°)',          options:['1/2','√3/2','1','0'],          answer:0, meaning:'trigonometry',       level:'Level 2'},
+  {type:'compute', zh:'d/dx [x³]',        options:['3x²','x²','3x','2x²'],         answer:0, meaning:'differentiation',    level:'Level 2'},
+  {type:'compute', zh:'i²',              options:['−1','1','i','−i'],             answer:0, meaning:'complex numbers',    level:'Level 2'},
+  {type:'compute', zh:'∫ 2x dx',          options:['x² + C','2x² + C','x²/2 + C','2 + C'], answer:0, meaning:'integration', level:'Level 2'},
+  {type:'solve',   zh:'x² − 7x + 12 = 0', options:['x = 3 or 4','x = 2 or 6','x = 1 or 12','x = −3 or −4'],answer:0,meaning:'quadratic',level:'Level 2'},
+  {type:'compute', zh:'Σ k, k=1 to 5',    options:['15','10','20','12'],           answer:0, meaning:'summation',          level:'Level 2'},
+  {type:'identify',zh:'e ≈',              options:['2.71828','3.14159','1.41421','1.61803'],answer:0,meaning:'constant',   level:'Level 2'},
+  {type:'compute', zh:'tan(45°)',          options:['1','0','√2','∞'],              answer:0, meaning:'trigonometry',       level:'Level 2'},
+  {type:'identify',zh:'Sequence: 1,1,2,3,5,8,?',options:['13','11','10','12'],     answer:0, meaning:'Fibonacci',          level:'Level 2'},
+  {type:'identify',zh:'Vertices of a cube',options:['8','6','12','4'],             answer:0, meaning:'3D geometry',        level:'Level 2'},
+  {type:'compute', zh:'3³ × 3²',          options:['243','81','729','27'],         answer:0, meaning:'exponent rules',     level:'Level 2'},
+];
+
+// ── HELPERS ───────────────────────────────────────────────────────────────────
+function esc(s){
+  if(s==null)return'';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+                  .replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+}
+function shuffle(a){
+  const b=[...a];
+  for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];}
+  return b;
+}
+function shuffleQ(q){
+  const correct=q.options[q.answer];
+  const s=shuffle(q.options);
+  return{...q,options:s,answer:s.indexOf(correct)};
+}
+function ensureQ(){
+  let q=STORE.getQuestions();
+  if(q===null){STORE.setQuestions(DEFAULTS);q=DEFAULTS;}
+  return q;
+}
+function prompt_(t){
+  if(t==='compute')return'Calculate the answer:';
+  if(t==='solve')return'Solve for the unknown:';
+  if(t==='identify')return'Choose the correct answer:';
+  return'Choose the correct answer:';
+}
+function medal(p){return p>=90?'🏆':p>=75?'🥇':p>=60?'🥈':p>=40?'🥉':'📐'}
+function praise(p){
+  if(p>=90)return{title:'Outstanding!',sub:'Euler would be proud!'};
+  if(p>=75)return{title:'Excellent!',sub:'Great mathematical thinking!'};
+  if(p>=60)return{title:'Good Work!',sub:'Practice makes perfect.'};
+  if(p>=40)return{title:'Keep Going!',sub:'Math takes dedication.'};
+  return{title:'Don\'t Give Up!',sub:'Even Ramanujan struggled once.'};
+}
+function pcls(p){return p>=60?'pg':p>=40?'py':'pr';}
+function R(){return document.getElementById('root');}
+
+// ── CONFETTI ──────────────────────────────────────────────────────────────────
+function confetti(dur=3000){
+  const cv=document.getElementById('cc');
+  const ctx=cv.getContext('2d');
+  cv.width=innerWidth;cv.height=innerHeight;
+  const cols=['#6D28D9','#8B5CF6','#F59E0B','#A78BFA','#fff','#1E1B4B'];
+  const ps=Array.from({length:60},()=>({
+    x:Math.random()*cv.width,y:-10-Math.random()*200,
+    r:4+Math.random()*6,c:cols[Math.floor(Math.random()*cols.length)],
+    sp:2+Math.random()*4,sw:Math.random()*4-2,
+    rot:Math.random()*360,rs:Math.random()*10-5
+  }));
+  const t0=Date.now();
+  (function draw(){
+    ctx.clearRect(0,0,cv.width,cv.height);
+    const el=Date.now()-t0;
+    const fade=Math.max(0,1-(el-dur*.7)/(dur*.3));
+    ps.forEach(p=>{
+      p.y+=p.sp;p.x+=Math.sin(p.y*.05)*p.sw;p.rot+=p.rs;
+      ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.rot*Math.PI/180);
+      ctx.fillStyle=p.c;ctx.globalAlpha=fade;
+      ctx.fillRect(-p.r,-p.r/2,p.r*2,p.r);ctx.restore();
+      if(p.y>cv.height){p.y=-10;p.x=Math.random()*cv.width;}
+    });
+    if(Date.now()-t0<dur)requestAnimationFrame(draw);
+    else ctx.clearRect(0,0,cv.width,cv.height);
+  })();
+}
+
+// ── TV CELEBRATION ────────────────────────────────────────────────────────────
+let tvInterval=null, celebActive=false, lastSeen=0, tvSessionStart=0;
+
+function tvReset(){
+  tvSessionStart=Date.now();
+  lastSeen=tvSessionStart;
+  STORE.clearActive();
+  drawTV();
+}
+
+function celebrate(e){
+  if(celebActive)return;
+  celebActive=true;
+  const m=medal(e.pct), pr=praise(e.pct);
+  const ov=document.getElementById('cov');
+  document.getElementById('ccard').innerHTML=`
+    <div class="cc">
+      <span class="cm">${m}</span>
+      <div style="font-family:'Playfair Display',serif;font-size:40px;font-weight:900;color:var(--purple);margin:8px 0">${esc(pr.title)}</div>
+      <div style="font-size:18px;color:var(--violet);margin-bottom:12px">${esc(pr.sub)}</div>
+      <div style="font-family:var(--fb);font-size:56px;font-weight:800;
+                  background:linear-gradient(135deg,var(--purple),var(--gold));
+                  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+                  background-clip:text;line-height:1.1;margin:8px 0">${esc(e.name)}</div>
+      <div style="font-size:20px;color:var(--violet);letter-spacing:.1em;text-transform:uppercase;margin-bottom:16px">${esc(e.cls)}</div>
+      <div style="background:var(--ink);border:3px solid var(--purple);border-radius:16px;
+                  padding:16px 32px;display:inline-flex;align-items:baseline;gap:12px;margin-bottom:24px">
+        <span style="font-size:80px;font-weight:800;color:var(--gold);font-family:var(--fb)">${e.pct}%</span>
+        <span style="font-size:28px;color:rgba(255,255,255,.7)">${e.score}/${e.total}</span>
+      </div>
+      <div style="font-size:13px;color:rgba(30,27,75,.4)">Returning to results...</div>
+    </div>`;
+  ov.classList.add('on');
+  if(e.pct>=60)confetti(4000);
+  setTimeout(()=>{ov.classList.remove('on');celebActive=false;},6000);
+}
+
+// ── ROUTING ───────────────────────────────────────────────────────────────────
+function route(){
+  const h=location.hash||'#/';
+  const tv=h==='#/tv';
+  if(!tv&&tvInterval){clearInterval(tvInterval);tvInterval=null;}
+  document.body.classList.toggle('tv-mode',tv);
+  if(h==='#/'||h==='')return renderHome();
+  if(h==='#/level')return renderLevel();
+  if(h==='#/quiz')return renderQuiz();
+  if(h==='#/result')return renderResult();
+  if(h==='#/tv')return renderTV();
+  if(h==='#/admin')return renderAdmin();
+  renderHome();
+}
+window.addEventListener('hashchange',route);
+window.addEventListener('load',initApp);
+
+// ── HOME ──────────────────────────────────────────────────────────────────────
+function renderHome(){
+  const n=STORE.getSettings().numQuestions;
+  R().innerHTML=`
+  <div class="container" style="padding-top:20px">
+    <div class="banner">
+      <div class="bd tl"></div><div class="bd tr"></div>
+      <div class="bd bl"></div><div class="bd br"></div>
+      <div style="font-size:40px;margin-bottom:4px">∑ π √</div>
+      <h1>Mathematics</h1>
+      <div class="sub">QUIZ &amp; PRACTICE</div>
+    </div>
+    <div style="text-align:center;margin-bottom:24px;font-size:16px;color:var(--violet);font-weight:600">
+      ✦ Enter your name and class to begin ✦
+    </div>
+    <div class="card">
+      <div class="field">
+        <label>Your Name</label>
+        <input type="text" id="iname" placeholder="Enter your name…" maxlength="20" autocomplete="off">
+      </div>
+      <div class="field">
+        <label>Class / Group</label>
+        <input type="text" id="icls" placeholder="e.g. 10A, Group 3…" maxlength="20" autocomplete="off">
+      </div>
+      <div id="herr"></div>
+      <button class="btn btn-purple btn-lg" style="width:100%;margin-top:8px" onclick="startQuiz()">
+        START QUIZ →
+      </button>
+    </div>
+    <div style="display:flex;justify-content:center;gap:10px;margin-top:20px;flex-wrap:wrap">
+      <span class="pill">📝 ${n} Questions</span>
+      <span class="pill">⏱️ No time limit</span>
+      <span class="pill">🧮 Do your best!</span>
+    </div>
+  </div>`;
+  setTimeout(()=>{
+    const ni=document.getElementById('iname');
+    const ci=document.getElementById('icls');
+    if(ni)ni.addEventListener('keydown',e=>{if(e.key==='Enter')startQuiz();});
+    if(ci)ci.addEventListener('keydown',e=>{if(e.key==='Enter')startQuiz();});
+    if(ni)ni.focus();
+  },0);
+}
+
+function startQuiz(){
+  const name=document.getElementById('iname').value.trim();
+  const cls=document.getElementById('icls').value.trim();
+  const err=document.getElementById('herr');
+  if(!name||!cls){err.innerHTML=`<div class="err">Please enter both your name and class!</div>`;return;}
+  sessionStorage.setItem('chq_stu',JSON.stringify({name,cls}));
+  location.hash='#/level';
+}
+
+// ── LEVEL SELECT ──────────────────────────────────────────────────────────────
+function renderLevel(){
+  const stu=JSON.parse(sessionStorage.getItem('chq_stu')||'null');
+  if(!stu){location.hash='#/';return;}
+  const all=ensureQ();
+  const counts={};
+  MATH_LEVELS.forEach(l=>{counts[l]=all.filter(q=>(q.level||'Level 1')===l).length;});
+
+  const colors=['var(--purple)','var(--gold)'];
+  R().innerHTML=`
+  <div class="container" style="padding-top:20px">
+    <div style="text-align:center;margin-bottom:8px">
+      <div style="font-size:13px;font-weight:700;color:var(--violet);text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px">Welcome, ${esc(stu.name)}</div>
+    </div>
+    <div class="banner" style="margin-bottom:24px">
+      <div class="bd tl"></div><div class="bd tr"></div>
+      <div class="bd bl"></div><div class="bd br"></div>
+      <h1 style="font-size:34px">Choose Level</h1>
+      <div class="sub">SELECT YOUR DIFFICULTY</div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+      ${MATH_LEVELS.map((lvl,i)=>{
+        const n=counts[lvl]||0;
+        const c=colors[i]||'var(--purple)';
+        const disabled=n===0;
+        return`<button onclick="${disabled?'':'pickLevel(\''+lvl+'\')'}"
+          style="background:var(--paper);border:3px solid ${disabled?'rgba(0,0,0,.15)':c};border-radius:20px;
+                 padding:24px 16px;text-align:center;cursor:${disabled?'not-allowed':'pointer'};
+                 box-shadow:${disabled?'none':'0 6px 0 '+c};
+                 opacity:${disabled?.4:1};transition:transform .1s,box-shadow .1s;
+                 touch-action:manipulation;-webkit-tap-highlight-color:transparent"
+          onmouseover="if(!${disabled})this.style.transform='translateY(-3px)'"
+          onmouseout="if(!${disabled})this.style.transform='translateY(0)'"
+          onmousedown="if(!${disabled})this.style.transform='translateY(3px)'"
+          onmouseup="if(!${disabled})this.style.transform='translateY(-3px)'">
+          <div style="font-size:26px;font-weight:900;color:${disabled?'rgba(0,0,0,.25)':c};font-family:'Playfair Display',serif;line-height:1">${lvl}</div>
+          <div style="font-size:11px;font-weight:700;color:${disabled?'rgba(0,0,0,.25)':'rgba(0,0,0,.5)'};margin:6px 0 12px;letter-spacing:.03em">${MATH_DESC[lvl]}</div>
+          <div style="display:inline-block;background:${disabled?'rgba(0,0,0,.06)':c};color:${disabled?'rgba(0,0,0,.3)':'#fff'};
+                      border-radius:999px;padding:3px 12px;font-size:12px;font-weight:800">
+            ${n} question${n!==1?'s':''}
+          </div>
+        </button>`;
+      }).join('')}
+    </div>
+    <div style="text-align:center;margin-top:20px">
+      <a href="#/" style="font-size:13px;font-weight:700;color:var(--violet);text-decoration:none">← Back</a>
+    </div>
+  </div>`;
+}
+
+function pickLevel(lvl){
+  sessionStorage.setItem('chq_level',lvl);
+  qQs=[];qAs=[];qCur=0;
+  location.hash='#/quiz';
+}
+
+// ── QUIZ ──────────────────────────────────────────────────────────────────────
+let qQs=[], qAs=[], qCur=0;
+
+function renderQuiz(){
+  const stu=JSON.parse(sessionStorage.getItem('chq_stu')||'null');
+  if(!stu){location.hash='#/';return;}
+  const lvl=sessionStorage.getItem('chq_level')||'Level 1';
+  if(qQs.length===0){
+    const cfg=STORE.getSettings();
+    const all=ensureQ();
+    const filtered=all.filter(q=>(q.level||'Level 1')===lvl);
+    if(!filtered.length){location.hash='#/level';return;}
+    const num=Math.min(cfg.numQuestions,filtered.length);
+    qQs=shuffle(filtered).slice(0,num).map(shuffleQ);
+    qAs=new Array(num).fill(-1);
+    qCur=0;
+    STORE.setActive({name:stu.name,cls:stu.cls,level:lvl});
+  }
+  drawQ(stu,lvl);
+}
+
+function drawQ(stu,lvl){
+  if(!stu)stu=JSON.parse(sessionStorage.getItem('chq_stu'));
+  if(!lvl)lvl=sessionStorage.getItem('chq_level')||'Level 1';
+  const q=qQs[qCur];
+  const total=qQs.length;
+  const answered=qAs.filter(a=>a!==-1).length;
+  const pct=((qCur+1)/total*100).toFixed(0);
+  const isLast=qCur===total-1;
+  R().innerHTML=`
+  <div class="container">
+    <div class="pbw"><div class="pbf" style="width:${pct}%"></div></div>
+    <div class="quiz-header" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <span style="font-weight:700;font-size:15px">Question ${qCur+1} / ${total}</span>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="background:var(--purple);color:#fff;border-radius:999px;padding:3px 10px;font-size:12px;font-weight:800">${esc(lvl)}</span>
+        <span style="font-weight:600;font-size:14px">👤 ${esc(stu.name)}</span>
+      </div>
+    </div>
+    <div class="card si">
+      <div style="font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--violet);margin-bottom:8px">
+        ${esc(prompt_(q.type))}
+      </div>
+      <div class="math-expr">${esc(q.zh)}</div>
+      <div class="og">
+        ${q.options.map((o,i)=>`
+          <button class="opt ${qAs[qCur]===i?'sel':''}" onclick="selOpt(${i})">
+            ${esc(o)}
+          </button>`).join('')}
+      </div>
+    </div>
+    <div class="quiz-nav" style="display:flex;align-items:center;justify-content:space-between;margin-top:20px;gap:12px">
+      <button class="btn btn-ghost" onclick="prevQ()" ${qCur===0?'disabled':''}>← Prev</button>
+      <span class="pill" style="font-size:14px">${answered} / ${total}</span>
+      ${isLast
+        ?`<button class="btn btn-purple" onclick="submitQuiz()">Submit ✓</button>`
+        :`<button class="btn btn-ink" onclick="nextQ()">Next →</button>`}
+    </div>
+  </div>`;
+}
+
+function selOpt(i){qAs[qCur]=i;drawQ();}
+function prevQ(){if(qCur>0){qCur--;drawQ();}}
+function nextQ(){if(qCur<qQs.length-1){qCur++;drawQ();}}
+
+function submitQuiz(){
+  const un=qAs.filter(a=>a===-1).length;
+  if(un>0&&!confirm(`You have ${un} unanswered question${un>1?'s':''}. Submit anyway?`))return;
+  let score=0;
+  qQs.forEach((q,i)=>{if(qAs[i]===q.answer)score++;});
+  const total=qQs.length;
+  const pct=Math.round(score/total*100);
+  const stu=JSON.parse(sessionStorage.getItem('chq_stu'));
+  const lvl=sessionStorage.getItem('chq_level')||'Level 1';
+  const entry={name:stu.name,cls:stu.cls,score,total,pct,level:lvl,timestamp:Date.now()};
+  STORE.addScore(entry);
+  STORE.clearActive();
+  sessionStorage.setItem('chq_res',JSON.stringify(entry));
+  qQs=[];qAs=[];qCur=0;
+  location.hash='#/result';
+}
+
+// ── RESULT ────────────────────────────────────────────────────────────────────
+function renderResult(){
+  const res=JSON.parse(sessionStorage.getItem('chq_res')||'null');
+  if(!res){location.hash='#/';return;}
+  const m=medal(res.pct), pr=praise(res.pct);
+  const grad=`conic-gradient(var(--purple) ${res.pct*3.6}deg,rgba(0,0,0,.1) 0deg)`;
+  R().innerHTML=`
+  <div class="container" style="text-align:center;padding-top:20px">
+    <div style="font-size:80px;margin-bottom:8px">${m}</div>
+    <div class="result-title" style="font-family:'Playfair Display',serif;font-size:48px;font-weight:900;color:var(--purple);margin-bottom:4px">${esc(pr.title)}</div>
+    <div class="result-sub" style="font-size:20px;font-weight:600;color:var(--violet);margin-bottom:24px">${esc(pr.sub)}</div>
+    <div class="sc" style="background:${grad}">
+      <div style="position:absolute;inset:10px;background:var(--paper);border-radius:50%;
+                  display:flex;flex-direction:column;align-items:center;justify-content:center;border:var(--border)">
+        <div style="font-size:40px;font-weight:800;color:var(--purple)">${res.pct}%</div>
+        <div style="font-size:14px;font-weight:700;color:var(--ink)">${res.score}/${res.total}</div>
+      </div>
+    </div>
+    <div class="card" style="text-align:left;margin-bottom:20px">
+      <div style="font-size:20px;font-weight:800;margin-bottom:4px">${esc(res.name)}</div>
+      <div style="font-size:14px;color:var(--violet);font-weight:600;text-transform:uppercase;letter-spacing:.05em">${esc(res.cls)} · ${esc(res.level)}</div>
+    </div>
+    <div style="font-size:18px;font-weight:700;margin-bottom:8px">Your score is on the TV! 📺</div>
+    <div style="font-size:15px;color:var(--violet)">Thank you for participating!</div>
+    <div style="margin-top:24px"><a href="#/" class="btn btn-purple">Try Again →</a></div>
+  </div>`;
+  if(res.pct>=60)confetti(3000);
+}
+
+// ── TV ────────────────────────────────────────────────────────────────────────
+function renderTV(){
+  document.body.classList.add('tv-mode');
+  const scores=STORE.getScores();
+  if(scores.length>0&&lastSeen===0)
+    lastSeen=Math.max(...scores.map(s=>s.timestamp));
+  R().innerHTML=`<div class="tvbg" id="tvw"></div>`;
+  R().addEventListener('click',e=>{
+    if(e.target&&e.target.id==='tv-refresh')tvReset();
+  });
+  R().addEventListener('mouseover',e=>{
+    if(e.target&&e.target.id==='tv-refresh')e.target.style.background='rgba(255,255,255,.15)';
+  });
+  R().addEventListener('mouseout',e=>{
+    if(e.target&&e.target.id==='tv-refresh')e.target.style.background='rgba(255,255,255,.08)';
+  });
+  drawTV();
+  if(tvInterval)clearInterval(tvInterval);
+  tvInterval=setInterval(pollTV,2000);
+}
+
+function bestScores(scores){
+  const m={};
+  scores.forEach(s=>{
+    const k=s.name+'||'+s.cls;
+    if(!m[k]||s.pct>m[k].pct)m[k]=s;
+  });
+  return Object.values(m).sort((a,b)=>b.pct-a.pct||b.score-a.score);
+}
+
+function drawTV(){
+  const w=document.getElementById('tvw');
+  if(!w)return;
+  const allScores=STORE.getScores();
+  const scores=tvSessionStart?allScores.filter(s=>s.timestamp>tvSessionStart):allScores;
+  const active=STORE.getActive();
+  const last=scores.length?[...scores].sort((a,b)=>b.timestamp-a.timestamp)[0]:null;
+
+  const refreshBtn=`<button id="tv-refresh" style="position:fixed;bottom:20px;right:20px;background:rgba(255,255,255,.08);border:2px solid rgba(255,255,255,.18);border-radius:999px;color:rgba(255,255,255,.45);font-family:var(--fb);font-size:13px;font-weight:700;padding:8px 18px;cursor:pointer;letter-spacing:.05em;z-index:50">↺ Refresh</button>`;
+
+  if(active){
+    w.innerHTML=`
+      ${refreshBtn}
+      <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;text-align:center;gap:0">
+        <div style="font-family:'Playfair Display',serif;font-size:48px;font-weight:900;color:var(--gold);line-height:1;margin-bottom:4px">Mathematics Quiz</div>
+        <div style="font-size:11px;font-weight:800;letter-spacing:.3em;color:rgba(255,255,255,.35);margin-bottom:56px">CLASS RESULTS</div>
+        <div style="font-size:72px;margin-bottom:24px;animation:be .8s ease infinite alternate">🧮</div>
+        <div style="font-size:64px;font-weight:900;background:linear-gradient(135deg,var(--purple2),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1.1;margin-bottom:10px">${esc(active.name)}</div>
+        <div style="font-size:20px;color:rgba(255,255,255,.4);font-weight:700;text-transform:uppercase;letter-spacing:.12em;margin-bottom:32px">${esc(active.cls)}</div>
+        <div style="font-size:28px;font-weight:700;color:rgba(255,255,255,.7)">is now taking the quiz…</div>
+        <div style="margin-top:32px;display:flex;gap:8px;align-items:center">
+          <span style="width:10px;height:10px;border-radius:50%;background:var(--purple2);display:inline-block;animation:pulse 1.2s ease infinite"></span>
+          <span style="width:10px;height:10px;border-radius:50%;background:var(--gold);display:inline-block;animation:pulse 1.2s ease .4s infinite"></span>
+          <span style="width:10px;height:10px;border-radius:50%;background:#A78BFA;display:inline-block;animation:pulse 1.2s ease .8s infinite"></span>
+        </div>
+        ${scores.length?`<div style="font-size:13px;color:rgba(255,255,255,.18);margin-top:40px">${scores.length} student${scores.length!==1?'s':''} completed today</div>`:''}
+      </div>`;
+    return;
+  }
+
+  if(!last){
+    w.innerHTML=`
+      ${refreshBtn}
+      <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;gap:16px">
+        <div style="font-family:'Playfair Display',serif;font-size:80px;font-weight:900;color:var(--gold);line-height:1">∑ π √</div>
+        <div style="font-family:'Playfair Display',serif;font-size:48px;font-weight:900;color:#fff;line-height:1">Mathematics Quiz</div>
+        <div style="font-size:16px;font-weight:800;letter-spacing:.3em;color:rgba(255,255,255,.4)">CLASS RESULTS</div>
+        <div style="margin-top:40px;font-size:22px;color:rgba(255,255,255,.25)">Waiting for students…</div>
+      </div>`;
+    return;
+  }
+
+  const m=medal(last.pct), pr=praise(last.pct);
+  const grad=`conic-gradient(${last.pct>=75?'#8B5CF6':last.pct>=50?'var(--gold)':'#DC2626'} ${last.pct*3.6}deg, rgba(255,255,255,.08) 0deg)`;
+
+  w.innerHTML=`
+    ${refreshBtn}
+    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;text-align:center;gap:0">
+      <div style="font-family:'Playfair Display',serif;font-size:42px;font-weight:900;color:var(--gold);line-height:1;margin-bottom:4px">Mathematics Quiz</div>
+      <div style="font-size:11px;font-weight:800;letter-spacing:.3em;color:rgba(255,255,255,.35);margin-bottom:48px">CLASS RESULTS</div>
+      <div style="font-size:110px;line-height:1;margin-bottom:16px">${m}</div>
+      <div style="font-family:'Playfair Display',serif;font-size:52px;font-weight:900;color:#A78BFA;margin-bottom:8px">${esc(pr.title)}</div>
+      <div style="font-size:20px;font-weight:700;color:rgba(255,255,255,.55);margin-bottom:32px">${esc(pr.sub)}</div>
+      <div style="font-size:72px;font-weight:900;background:linear-gradient(135deg,var(--purple2),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1.1;margin-bottom:8px">${esc(last.name)}</div>
+      <div style="font-size:22px;color:rgba(255,255,255,.45);font-weight:700;text-transform:uppercase;letter-spacing:.12em;margin-bottom:40px">${esc(last.cls)}</div>
+      <div style="position:relative;width:220px;height:220px;margin-bottom:16px">
+        <div style="width:220px;height:220px;border-radius:50%;background:${grad};border:4px solid rgba(255,255,255,.15)"></div>
+        <div style="position:absolute;inset:14px;border-radius:50%;background:var(--ink);display:flex;flex-direction:column;align-items:center;justify-content:center;border:3px solid rgba(255,255,255,.1)">
+          <div style="font-size:60px;font-weight:900;color:var(--gold)">${last.pct}%</div>
+          <div style="font-size:20px;color:rgba(255,255,255,.5)">${last.score} / ${last.total}</div>
+        </div>
+      </div>
+      <div style="font-size:13px;color:rgba(255,255,255,.2);margin-top:8px">${scores.length} student${scores.length!==1?'s':''} completed today</div>
+    </div>`;
+}
+
+async function pollTV(){
+  if(REMOTE.ok()){
+    try{
+      const [s,act]=await Promise.all([REMOTE.get('chq_s'),REMOTE.get('chq_active')]);
+      const sArr=toArr(s)||[];
+      localStorage.setItem('chq_s',JSON.stringify(sArr));
+      if(act)localStorage.setItem('chq_active',JSON.stringify(act));
+      else localStorage.removeItem('chq_active');
+    }catch{}
+  }
+  const scores=STORE.getScores();
+  const fresh=scores.filter(s=>s.timestamp>lastSeen);
+  if(fresh.length){
+    fresh.sort((a,b)=>a.timestamp-b.timestamp);
+    lastSeen=fresh[fresh.length-1].timestamp;
+    drawTV();
+    celebrate(fresh[fresh.length-1]);
+  } else {
+    drawTV();
+  }
+}
+
+// ── ADMIN ─────────────────────────────────────────────────────────────────────
+let adminOk=false, curTab='questions';
+
+function renderAdmin(){
+  adminOk?renderPanel():renderLogin();
+}
+
+function renderLogin(){
+  R().innerHTML=`
+  <div class="container" style="padding-top:40px;max-width:440px">
+    <div class="banner" style="transform:rotate(-1.5deg)">
+      <div class="bd tl"></div><div class="bd tr"></div>
+      <div class="bd bl"></div><div class="bd br"></div>
+      <h1 style="font-size:34px">Admin Panel</h1>
+      <div class="sub">TEACHER ACCESS</div>
+    </div>
+    <div class="card">
+      <div class="field">
+        <label>Password</label>
+        <input type="password" id="apw" placeholder="Enter admin password…" autocomplete="off">
+      </div>
+      <div id="aerr"></div>
+      <button class="btn btn-purple" style="width:100%;margin-top:8px" onclick="tryLogin()">🔓 Unlock Admin</button>
+    </div>
+  </div>`;
+  setTimeout(()=>{
+    const p=document.getElementById('apw');
+    if(p){p.addEventListener('keydown',e=>{if(e.key==='Enter')tryLogin();});p.focus();}
+  },0);
+}
+
+function tryLogin(){
+  const pw=document.getElementById('apw').value;
+  if(pw===STORE.getSettings().adminPassword){adminOk=true;renderPanel();}
+  else document.getElementById('aerr').innerHTML=`<div class="err">Incorrect password.</div>`;
+}
+
+function renderPanel(){
+  const qs=ensureQ(), sc=STORE.getScores();
+  R().innerHTML=`
+  <div class="container" style="max-width:820px">
+    <div class="banner" style="transform:rotate(-1deg)">
+      <div class="bd tl"></div><div class="bd tr"></div>
+      <div class="bd bl"></div><div class="bd br"></div>
+      <h1 style="font-size:34px">Admin Panel</h1>
+      <div class="sub">TEACHER ACCESS</div>
+    </div>
+    <div style="background:var(--ink);border:3px solid var(--gold);border-radius:var(--rl);padding:24px;margin-bottom:24px;box-shadow:0 8px 0 rgba(245,158,11,.3)">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+        <div>
+          <div style="font-size:20px;font-weight:800;color:var(--gold);margin-bottom:4px">📺 TV Display</div>
+          <div style="font-size:13px;color:rgba(255,255,255,.6)">Open on the classroom TV — shows live results as students finish</div>
+        </div>
+        <a href="#/tv" target="_blank" class="btn btn-gold">Open TV →</a>
+      </div>
+    </div>
+    <div class="tabs">
+      <button class="tab ${curTab==='questions'?'on':''}" onclick="switchTab('questions')">📝 Questions (${qs.length})</button>
+      <button class="tab ${curTab==='add'?'on':''}" onclick="switchTab('add')">➕ Add Question</button>
+      <button class="tab ${curTab==='leaderboard'?'on':''}" onclick="switchTab('leaderboard')">📊 Leaderboard (${sc.length})</button>
+      <button class="tab ${curTab==='scores'?'on':''}" onclick="switchTab('scores')">🗒️ All Submissions (${sc.length})</button>
+      <button class="tab ${curTab==='settings'?'on':''}" onclick="switchTab('settings')">⚙️ Settings</button>
+    </div>
+    <div id="tc"></div>
+  </div>`;
+  drawTab();
+}
+
+function switchTab(t){curTab=t;renderPanel();}
+
+function drawTab(){
+  const el=document.getElementById('tc');
+  if(!el)return;
+  if(curTab==='questions')tabQ(el);
+  else if(curTab==='add')tabAdd(el);
+  else if(curTab==='leaderboard')tabLb(el);
+  else if(curTab==='scores')tabSc(el);
+  else tabSet(el);
+}
+
+function tabQ(el){
+  const qs=ensureQ();
+  el.innerHTML=!qs.length
+    ?`<div style="text-align:center;padding:40px;color:var(--violet)">No questions yet.</div>`
+    :qs.map((q,i)=>`
+      <div class="qc">
+        <div style="flex:1">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;flex-wrap:wrap">
+            <span style="font-size:13px;font-weight:700;color:rgba(30,27,75,.4)">#${i+1}</span>
+            <span style="background:var(--purple);color:#fff;border-radius:999px;padding:2px 9px;font-size:11px;font-weight:800">${esc(q.level||'Level 1')}</span>
+          </div>
+          <div style="font-family:'Playfair Display',serif;font-size:28px;font-weight:700;line-height:1.2;margin-bottom:6px">${esc(q.zh)}</div>
+          <div style="font-size:13px;color:var(--violet)">✓ ${esc(q.options[q.answer])}</div>
+        </div>
+        <button class="btn btn-purple btn-sm" onclick="delQ(${i})">Delete</button>
+      </div>`).join('');
+}
+
+function delQ(i){
+  if(!confirm('Delete this question?'))return;
+  const qs=ensureQ();qs.splice(i,1);STORE.setQuestions(qs);renderPanel();
+}
+
+function tabAdd(el){
+  el.innerHTML=`
+  <div class="card">
+    <div class="field">
+      <label>Level</label>
+      <select id="alvl">
+        ${MATH_LEVELS.map(l=>`<option value="${l}">${l} — ${MATH_DESC[l]}</option>`).join('')}
+      </select>
+    </div>
+    <div class="field">
+      <label>Question / Expression</label>
+      <input type="text" id="azh" placeholder="e.g. 3x + 2 = 14" autocomplete="off">
+    </div>
+    <div style="background:rgba(245,158,11,.1);border:2px solid var(--gold);border-radius:8px;padding:10px 14px;font-size:13px;font-weight:600;margin-bottom:16px">
+      ⭐ Option 1 is always the correct answer (options are shuffled automatically).
+    </div>
+    ${[1,2,3,4].map(n=>`
+      <div class="field">
+        <label>Option ${n}${n===1?' (correct) ⭐':''}</label>
+        <input type="text" id="ao${n}" placeholder="Option ${n}…" autocomplete="off">
+      </div>`).join('')}
+    <div id="amsg"></div>
+    <button class="btn btn-purple" style="width:100%;margin-top:8px" onclick="addQ()">➕ Add Question</button>
+  </div>`;
+}
+
+function addQ(){
+  const lvl=document.getElementById('alvl').value;
+  const zh=document.getElementById('azh').value.trim();
+  const opts=[1,2,3,4].map(n=>document.getElementById('ao'+n).value.trim());
+  const msg=document.getElementById('amsg');
+  if(!zh||opts.some(o=>!o)){msg.innerHTML=`<div class="err">Fill in the question and all 4 options.</div>`;return;}
+  const qs=ensureQ();
+  qs.push({type:'compute',zh,options:opts,answer:0,meaning:'',level:lvl});
+  STORE.setQuestions(qs);
+  msg.innerHTML=`<div class="ok">✓ Question added to ${esc(lvl)}! Total: ${qs.length}</div>`;
+  document.getElementById('azh').value='';
+  [1,2,3,4].forEach(n=>{document.getElementById('ao'+n).value='';});
+  document.getElementById('azh').focus();
+  setTimeout(()=>renderPanel(),800);
+}
+
+function tabLb(el){
+  const scores=STORE.getScores();
+  const ranked=bestScores(scores);
+  const ri=['🥇','🥈','🥉'];
+  const rc=[
+    'background:linear-gradient(135deg,rgba(245,158,11,.15),rgba(245,158,11,.04));border-color:var(--gold)',
+    'background:linear-gradient(135deg,rgba(148,163,184,.15),rgba(148,163,184,.04));border-color:var(--silver)',
+    'background:linear-gradient(135deg,rgba(180,83,9,.15),rgba(180,83,9,.04));border-color:var(--bronze)',
+  ];
+
+  if(!ranked.length){
+    el.innerHTML=`<div style="text-align:center;padding:48px;color:var(--violet);font-size:15px">No results yet — students haven't submitted yet.</div>`;
+    return;
+  }
+
+  const avg=scores.length?Math.round(scores.reduce((s,e)=>s+e.pct,0)/scores.length):0;
+
+  el.innerHTML=`
+  <div>
+    <div style="display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap">
+      <div style="flex:1;min-width:120px;background:var(--paper);border:var(--border);border-radius:var(--r);padding:14px 18px;box-shadow:var(--shs);text-align:center">
+        <div style="font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--violet);margin-bottom:4px">Students</div>
+        <div style="font-size:32px;font-weight:800;color:var(--ink)">${ranked.length}</div>
+      </div>
+      <div style="flex:1;min-width:120px;background:var(--paper);border:var(--border);border-radius:var(--r);padding:14px 18px;box-shadow:var(--shs);text-align:center">
+        <div style="font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--violet);margin-bottom:4px">Top Score</div>
+        <div style="font-size:32px;font-weight:800;color:var(--purple)">${ranked[0].pct}%</div>
+      </div>
+      <div style="flex:1;min-width:120px;background:var(--paper);border:var(--border);border-radius:var(--r);padding:14px 18px;box-shadow:var(--shs);text-align:center">
+        <div style="font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--violet);margin-bottom:4px">Class Average</div>
+        <div style="font-size:32px;font-weight:800;color:var(--teal)">${avg}%</div>
+      </div>
+    </div>
+    ${ranked.map((s,i)=>`
+      <div style="display:flex;align-items:center;gap:14px;padding:14px 16px;border:2px solid ${i<3?'transparent':'var(--ink)'};border-radius:var(--r);margin-bottom:8px;box-shadow:var(--shs);${i<3?rc[i]:'background:var(--paper)'}">
+        <div style="font-size:${i<3?'28px':'16px'};width:36px;text-align:center;font-weight:800;color:${i<3?'inherit':'rgba(30,27,75,.35)'}">
+          ${i<3?ri[i]:`#${i+1}`}
+        </div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:18px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(s.name)}</div>
+          <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--violet)">${esc(s.cls)}</div>
+        </div>
+        <div style="text-align:right;flex-shrink:0">
+          <div style="font-size:26px;font-weight:800;color:${s.pct>=75?'var(--teal)':s.pct>=50?'#92400E':'#DC2626'}">${s.pct}%</div>
+          <div style="font-size:12px;color:rgba(30,27,75,.45)">${s.score} / ${s.total}</div>
+        </div>
+      </div>`).join('')}
+  </div>`;
+}
+
+function tabSc(el){
+  const scores=STORE.getScores();
+  const sorted=[...scores].sort((a,b)=>b.timestamp-a.timestamp);
+  el.innerHTML=`
+  <div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px">
+      <div style="font-weight:700">${scores.length} submission${scores.length!==1?'s':''}</div>
+      ${scores.length?`<button class="btn btn-purple btn-sm" onclick="clrSc()">Clear All Scores 🗑️</button>`:''}
+    </div>
+    ${!sorted.length
+      ?`<div style="text-align:center;padding:40px;color:var(--violet)">No scores yet.</div>`
+      :sorted.map(s=>`
+        <div class="sr">
+          <span class="pb ${pcls(s.pct)}">${s.pct}%</span>
+          <div style="flex:1">
+            <div style="font-size:17px;font-weight:800">${esc(s.name)}</div>
+            <div style="font-size:12px;color:var(--violet)">${esc(s.cls)} · ${s.score}/${s.total} · ${new Date(s.timestamp).toLocaleString()}</div>
+          </div>
+        </div>`).join('')}
+  </div>`;
+}
+
+function clrSc(){
+  if(!confirm('Clear all scores? This cannot be undone.'))return;
+  STORE.clearScores();renderPanel();
+}
+
+function tabSet(el){
+  const cfg=STORE.getSettings();
+  el.innerHTML=`
+  <div class="card">
+    <div class="field">
+      <label>Questions per Quiz (1–50)</label>
+      <input type="number" id="snum" value="${cfg.numQuestions}" min="1" max="50">
+    </div>
+    <div class="field">
+      <label>Admin Password</label>
+      <input type="text" id="spw" value="${esc(cfg.adminPassword)}" autocomplete="off">
+    </div>
+    <div id="smsg"></div>
+    <button class="btn btn-teal" style="margin-top:8px" onclick="saveCfg()">Save Settings ✓</button>
+    <hr style="border:none;border-top:2px solid rgba(0,0,0,.1);margin:24px 0">
+    <div style="display:flex;gap:12px;flex-wrap:wrap">
+      <button class="btn btn-ghost" onclick="resetQs()" style="font-size:14px">Reset Questions to Default 🔄</button>
+      <button class="btn btn-ghost" onclick="lockAdmin()" style="font-size:14px">Lock Admin 🔒</button>
+    </div>
+  </div>`;
+}
+
+function saveCfg(){
+  const num=parseInt(document.getElementById('snum').value,10);
+  const pw=document.getElementById('spw').value.trim();
+  const msg=document.getElementById('smsg');
+  if(isNaN(num)||num<1||num>50){msg.innerHTML=`<div class="err">Questions must be 1–50.</div>`;return;}
+  if(!pw){msg.innerHTML=`<div class="err">Password cannot be empty.</div>`;return;}
+  STORE.setSettings({numQuestions:num,adminPassword:pw});
+  msg.innerHTML=`<div class="ok">✓ Settings saved!</div>`;
+}
+
+function resetQs(){
+  if(!confirm('Reset all questions to the default bank? Custom questions will be removed.'))return;
+  STORE.setQuestions(DEFAULTS);renderPanel();
+}
+
+function lockAdmin(){adminOk=false;renderAdmin();}
+</script>
+</body>
+</html>
