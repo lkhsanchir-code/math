@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Mathematics Quiz</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
   <style>
     :root {
       --purple:  #6D28D9;
@@ -177,12 +179,12 @@
 
     /* MATH EXPRESSION DISPLAY */
     .math-expr{
-      font-family:'Playfair Display',serif;
-      font-size:64px;font-weight:700;
-      text-align:center;margin:16px 0;line-height:1.1;
-      color:var(--ink);
-      letter-spacing:-1px;
+      font-size:38px;
+      text-align:center;margin:16px 0;line-height:1.4;
+      color:var(--ink);overflow-x:auto;
     }
+    .math-expr .katex-display{margin:0}
+    .math-expr .katex{color:var(--ink)}
 
     button,a,.opt,.btn,.nl,.tab{
       touch-action:manipulation;
@@ -355,49 +357,49 @@ async function initApp(){
 }
 
 // ── MATH LEVELS & QUESTIONS ───────────────────────────────────────────────────
-const MATH_LEVELS = ['Level 1', 'Level 2'];
+const MATH_LEVELS = ['6th Grade', '7th Grade'];
 const MATH_DESC = {
-  'Level 1': 'Arithmetic & Foundations',
-  'Level 2': 'Algebra & Advanced',
+  '6th Grade': 'Arithmetic & Number Sense',
+  '7th Grade': 'Pre-Algebra & Geometry',
 };
 
 const DEFAULTS = [
-  // ── Level 1: Arithmetic & Foundations ────────────────────────────────────
-  {type:'compute', zh:'7 × 8',             options:['56','48','54','63'],           answer:0, meaning:'multiplication',     level:'Level 1'},
-  {type:'compute', zh:'√81',               options:['9','7','8','6'],               answer:0, meaning:'square root',        level:'Level 1'},
-  {type:'compute', zh:'125 ÷ 5',           options:['25','20','30','15'],           answer:0, meaning:'division',           level:'Level 1'},
-  {type:'compute', zh:'2⁶',               options:['64','32','128','16'],          answer:0, meaning:'exponent',           level:'Level 1'},
-  {type:'compute', zh:'3/4 + 1/2',        options:['5/4','1/4','7/8','1'],         answer:0, meaning:'fractions',          level:'Level 1'},
-  {type:'compute', zh:'|−15|',            options:['15','−15','0','1'],            answer:0, meaning:'absolute value',     level:'Level 1'},
-  {type:'compute', zh:'15% of 80',        options:['12','10','14','8'],            answer:0, meaning:'percentage',         level:'Level 1'},
-  {type:'compute', zh:'5!',               options:['120','60','24','720'],         answer:0, meaning:'factorial',          level:'Level 1'},
-  {type:'solve',   zh:'x + 9 = 21',       options:['x = 12','x = 11','x = 13','x = 10'],answer:0,meaning:'linear eq',    level:'Level 1'},
-  {type:'identify',zh:'Smallest prime',   options:['2','1','3','0'],               answer:0, meaning:'number theory',      level:'Level 1'},
-  {type:'identify',zh:'Area: 5 × 7 rect', options:['35','28','24','40'],           answer:0, meaning:'rectangle area',     level:'Level 1'},
-  {type:'identify',zh:'Perimeter: square, side 6', options:['24','12','36','18'], answer:0, meaning:'perimeter',          level:'Level 1'},
-  {type:'identify',zh:'Hypotenuse: legs 5 & 12',   options:['13','11','15','17'], answer:0, meaning:'Pythagorean theorem',level:'Level 1'},
-  {type:'identify',zh:'Angles in △',      options:['180°','90°','270°','360°'],    answer:0, meaning:'triangle',           level:'Level 1'},
-  {type:'identify',zh:'GCD(24, 36)',       options:['12','6','18','4'],             answer:0, meaning:'number theory',      level:'Level 1'},
-  {type:'identify',zh:'π ≈',              options:['3.14159','2.71828','1.41421','1.61803'],answer:0,meaning:'constant',   level:'Level 1'},
-  {type:'identify',zh:'Sides of hexagon', options:['6','5','7','8'],               answer:0, meaning:'geometry',           level:'Level 1'},
-  {type:'compute', zh:'0.75 = ?',         options:['3/4','2/3','4/5','7/8'],       answer:0, meaning:'decimal-fraction',  level:'Level 1'},
+  // ── 6th Grade: Arithmetic & Number Sense ─────────────────────────────────
+  {type:'compute', zh:'7 \\times 8',                       options:['56','48','54','63'],                                                        answer:0, meaning:'multiplication',      level:'6th Grade'},
+  {type:'compute', zh:'144 \\div 12',                      options:['12','11','13','10'],                                                        answer:0, meaning:'division',            level:'6th Grade'},
+  {type:'compute', zh:'\\dfrac{1}{2} + \\dfrac{1}{4}',    options:['\\tfrac{3}{4}','\\tfrac{1}{4}','1','\\tfrac{2}{3}'],                        answer:0, meaning:'fractions',           level:'6th Grade'},
+  {type:'compute', zh:'0.5 \\times 6',                     options:['3','2.5','4','3.5'],                                                        answer:0, meaning:'decimals',            level:'6th Grade'},
+  {type:'compute', zh:'25\\%\\ \\text{of}\\ 40',           options:['10','8','12','15'],                                                         answer:0, meaning:'percentage',          level:'6th Grade'},
+  {type:'compute', zh:'|-7|',                              options:['7','-7','0','1'],                                                           answer:0, meaning:'absolute value',      level:'6th Grade'},
+  {type:'identify',zh:'\\text{Area: rectangle}\\ 8 \\times 5', options:['40','35','45','30'],                                                    answer:0, meaning:'rectangle area',      level:'6th Grade'},
+  {type:'identify',zh:'\\text{Perimeter: square, side}\\ 4',   options:['16','12','8','20'],                                                     answer:0, meaning:'perimeter',           level:'6th Grade'},
+  {type:'identify',zh:'\\text{GCF}(12,\\ 18)',             options:['6','4','3','9'],                                                            answer:0, meaning:'number theory',       level:'6th Grade'},
+  {type:'identify',zh:'\\text{LCM}(4,\\ 6)',               options:['12','8','24','6'],                                                          answer:0, meaning:'number theory',       level:'6th Grade'},
+  {type:'compute', zh:'3^2',                               options:['9','6','8','12'],                                                           answer:0, meaning:'exponent',            level:'6th Grade'},
+  {type:'identify',zh:'\\text{Smallest prime number}',     options:['2','1','3','0'],                                                            answer:0, meaning:'number theory',       level:'6th Grade'},
+  {type:'identify',zh:'\\text{Sides of a hexagon}',        options:['6','5','7','8'],                                                            answer:0, meaning:'geometry',            level:'6th Grade'},
+  {type:'compute', zh:'0.75 = ?',                          options:['\\tfrac{3}{4}','\\tfrac{2}{3}','\\tfrac{4}{5}','\\tfrac{7}{8}'],            answer:0, meaning:'decimal-fraction',   level:'6th Grade'},
+  {type:'compute', zh:'\\dfrac{3}{4} - \\dfrac{1}{8}',    options:['\\tfrac{5}{8}','\\tfrac{1}{2}','\\tfrac{1}{4}','\\tfrac{3}{8}'],            answer:0, meaning:'fractions',           level:'6th Grade'},
+  {type:'identify',zh:'\\text{Mean of}\\ 2, 4, 6, 8',     options:['5','4','6','3'],                                                            answer:0, meaning:'statistics',          level:'6th Grade'},
+  {type:'compute', zh:'3^3',                               options:['27','9','18','24'],                                                         answer:0, meaning:'exponent',            level:'6th Grade'},
+  {type:'identify',zh:'\\text{Angles in a}\\ \\triangle',  options:['180°','90°','270°','360°'],                                                 answer:0, meaning:'geometry',            level:'6th Grade'},
 
-  // ── Level 2: Algebra & Advanced ──────────────────────────────────────────
-  {type:'solve',   zh:'2x + 5 = 17',      options:['x = 6','x = 5','x = 7','x = 4'],  answer:0,meaning:'linear equation',  level:'Level 2'},
-  {type:'identify',zh:'Slope of y = −4x + 3', options:['−4','3','4','−3'],         answer:0, meaning:'linear functions',   level:'Level 2'},
-  {type:'compute', zh:'Area: circle r = 5',   options:['25π','10π','5π','15π'],    answer:0, meaning:'circle area',        level:'Level 2'},
-  {type:'compute', zh:'log₃(27)',          options:['3','9','2','27'],              answer:0, meaning:'logarithm',          level:'Level 2'},
-  {type:'compute', zh:'sin(30°)',          options:['1/2','√3/2','1','0'],          answer:0, meaning:'trigonometry',       level:'Level 2'},
-  {type:'compute', zh:'d/dx [x³]',        options:['3x²','x²','3x','2x²'],         answer:0, meaning:'differentiation',    level:'Level 2'},
-  {type:'compute', zh:'i²',              options:['−1','1','i','−i'],             answer:0, meaning:'complex numbers',    level:'Level 2'},
-  {type:'compute', zh:'∫ 2x dx',          options:['x² + C','2x² + C','x²/2 + C','2 + C'], answer:0, meaning:'integration', level:'Level 2'},
-  {type:'solve',   zh:'x² − 7x + 12 = 0', options:['x = 3 or 4','x = 2 or 6','x = 1 or 12','x = −3 or −4'],answer:0,meaning:'quadratic',level:'Level 2'},
-  {type:'compute', zh:'Σ k, k=1 to 5',    options:['15','10','20','12'],           answer:0, meaning:'summation',          level:'Level 2'},
-  {type:'identify',zh:'e ≈',              options:['2.71828','3.14159','1.41421','1.61803'],answer:0,meaning:'constant',   level:'Level 2'},
-  {type:'compute', zh:'tan(45°)',          options:['1','0','√2','∞'],              answer:0, meaning:'trigonometry',       level:'Level 2'},
-  {type:'identify',zh:'Sequence: 1,1,2,3,5,8,?',options:['13','11','10','12'],     answer:0, meaning:'Fibonacci',          level:'Level 2'},
-  {type:'identify',zh:'Vertices of a cube',options:['8','6','12','4'],             answer:0, meaning:'3D geometry',        level:'Level 2'},
-  {type:'compute', zh:'3³ × 3²',          options:['243','81','729','27'],         answer:0, meaning:'exponent rules',     level:'Level 2'},
+  // ── 7th Grade: Pre-Algebra & Geometry ─────────────────────────────────────
+  {type:'solve',   zh:'x + 9 = 21',                        options:['x = 12','x = 11','x = 13','x = 10'],                                        answer:0, meaning:'linear eq',           level:'7th Grade'},
+  {type:'solve',   zh:'2x = 18',                           options:['x = 9','x = 8','x = 10','x = 6'],                                           answer:0, meaning:'linear eq',           level:'7th Grade'},
+  {type:'solve',   zh:'2x + 5 = 17',                       options:['x = 6','x = 5','x = 7','x = 4'],                                            answer:0, meaning:'linear equation',     level:'7th Grade'},
+  {type:'identify',zh:'\\text{Slope of}\\ y = 3x + 2',    options:['3','2','-3','-2'],                                                          answer:0, meaning:'linear functions',    level:'7th Grade'},
+  {type:'compute', zh:'\\text{Area: circle,}\\ r = 4',     options:['16\\pi','8\\pi','4\\pi','12\\pi'],                                          answer:0, meaning:'circle area',         level:'7th Grade'},
+  {type:'compute', zh:'\\sin(30°)',                         options:['\\tfrac{1}{2}','\\tfrac{\\sqrt{3}}{2}','1','0'],                            answer:0, meaning:'trigonometry',        level:'7th Grade'},
+  {type:'identify',zh:'\\text{Hypotenuse: legs 3 and 4}',  options:['5','6','7','4.5'],                                                          answer:0, meaning:'Pythagorean theorem',  level:'7th Grade'},
+  {type:'solve',   zh:'x^2 - 5x + 6 = 0',                 options:['x=2\\ \\text{or}\\ 3','x=1\\ \\text{or}\\ 6','x=-2\\ \\text{or}\\ -3','x=3\\ \\text{or}\\ 4'], answer:0, meaning:'quadratic', level:'7th Grade'},
+  {type:'compute', zh:'2^5',                               options:['32','16','64','8'],                                                         answer:0, meaning:'exponent',            level:'7th Grade'},
+  {type:'identify',zh:'\\text{Supplementary angles sum to}', options:['180°','90°','270°','360°'],                                               answer:0, meaning:'geometry',            level:'7th Grade'},
+  {type:'compute', zh:'(-3)^2',                            options:['9','-9','6','-6'],                                                         answer:0, meaning:'integers',            level:'7th Grade'},
+  {type:'identify',zh:'\\text{Surface area: cube, side}\\ 3', options:['54','27','36','45'],                                                    answer:0, meaning:'3D geometry',         level:'7th Grade'},
+  {type:'compute', zh:'\\dfrac{3}{5} \\times \\dfrac{10}{9}', options:['\\tfrac{2}{3}','\\tfrac{1}{3}','\\tfrac{30}{45}','\\tfrac{5}{9}'],      answer:0, meaning:'fractions',           level:'7th Grade'},
+  {type:'identify',zh:'\\text{Median of}\\ 1, 3, 5, 7, 9', options:['5','3','7','4'],                                                           answer:0, meaning:'statistics',          level:'7th Grade'},
+  {type:'compute', zh:'2^3 \\times 2^2',                   options:['32','16','64','8'],                                                         answer:0, meaning:'exponent rules',      level:'7th Grade'},
 ];
 
 // ── HELPERS ───────────────────────────────────────────────────────────────────
@@ -405,6 +407,14 @@ function esc(s){
   if(s==null)return'';
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
                   .replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+}
+function renderMath(s,display=true){
+  if(s==null)return'';
+  if(typeof katex!=='undefined'){
+    try{return katex.renderToString(String(s),{throwOnError:false,displayMode:display});}
+    catch{}
+  }
+  return esc(s);
 }
 function shuffle(a){
   const b=[...a];
@@ -673,11 +683,11 @@ function drawQ(stu,lvl){
       <div style="font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--violet);margin-bottom:8px">
         ${esc(prompt_(q.type))}
       </div>
-      <div class="math-expr">${esc(q.zh)}</div>
+      <div class="math-expr">${renderMath(q.zh)}</div>
       <div class="og">
         ${q.options.map((o,i)=>`
           <button class="opt ${qAs[qCur]===i?'sel':''}" onclick="selOpt(${i})">
-            ${esc(o)}
+            ${renderMath(o,false)}
           </button>`).join('')}
       </div>
     </div>
@@ -950,8 +960,8 @@ function tabQ(el){
             <span style="font-size:13px;font-weight:700;color:rgba(30,27,75,.4)">#${i+1}</span>
             <span style="background:var(--purple);color:#fff;border-radius:999px;padding:2px 9px;font-size:11px;font-weight:800">${esc(q.level||'Level 1')}</span>
           </div>
-          <div style="font-family:'Playfair Display',serif;font-size:28px;font-weight:700;line-height:1.2;margin-bottom:6px">${esc(q.zh)}</div>
-          <div style="font-size:13px;color:var(--violet)">✓ ${esc(q.options[q.answer])}</div>
+          <div style="font-size:22px;line-height:1.4;margin-bottom:6px">${renderMath(q.zh,false)}</div>
+          <div style="font-size:13px;color:var(--violet)">✓ ${renderMath(q.options[q.answer],false)}</div>
         </div>
         <button class="btn btn-purple btn-sm" onclick="delQ(${i})">Delete</button>
       </div>`).join('');
