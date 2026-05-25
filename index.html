@@ -232,6 +232,31 @@
       .og{gap:10px}
       .opt{padding:16px;font-size:15px}
     }
+
+    /* MATH KEYBOARD */
+    .math-kb{background:var(--ink);border:3px solid var(--purple);border-radius:var(--rl);padding:16px;margin:12px 0}
+    .mkb-section{margin-bottom:12px}
+    .mkb-section-title{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.12em;color:rgba(255,255,255,.3);margin-bottom:6px}
+    .mkb-row{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:5px}
+    .mkb{background:rgba(255,255,255,.08);border:2px solid rgba(255,255,255,.15);border-radius:8px;
+         color:#fff;font-size:15px;padding:9px 12px;cursor:pointer;min-width:42px;min-height:44px;
+         display:inline-flex;align-items:center;justify-content:center;
+         font-family:'Playfair Display',serif;line-height:1;
+         transition:background .1s,transform .08s;touch-action:manipulation;user-select:none}
+    .mkb:hover{background:rgba(255,255,255,.2);transform:translateY(-1px)}
+    .mkb:active{background:rgba(255,255,255,.32);transform:translateY(1px)}
+    .mkb.mkb-op{background:rgba(109,40,217,.35);border-color:rgba(139,92,246,.55)}
+    .mkb.mkb-tmpl{background:rgba(245,158,11,.2);border-color:rgba(245,158,11,.5);color:var(--gold)}
+    .mkb.mkb-red{background:rgba(220,38,38,.25);border-color:rgba(220,38,38,.5);color:#FCA5A5}
+    .mkb.mkb-wide{flex:1;min-width:80px}
+    .mkb-preview{min-height:60px;display:flex;align-items:center;justify-content:center;
+                 padding:10px 12px;margin-top:8px;background:var(--pale);
+                 border:3px solid var(--purple);border-radius:var(--r);
+                 font-size:30px;overflow-x:auto}
+    @media(max-width:520px){
+      .mkb{min-width:34px;min-height:40px;padding:7px 8px;font-size:13px}
+      .mkb-preview{font-size:22px;min-height:48px}
+    }
   </style>
 </head>
 <body>
@@ -939,6 +964,90 @@ function renderPanel(){
 
 function switchTab(t){curTab=t;renderPanel();}
 
+// ── MATH KEYBOARD ─────────────────────────────────────────────────────────────
+function mkbClick(el){
+  const act=el.getAttribute('data-mkb-action');
+  if(act==='del'){mkbDel();return;}
+  if(act==='clear'){mkbClear();return;}
+  const t=el.getAttribute('data-t');
+  if(t===null)return;
+  const p=el.getAttribute('data-p');
+  mkbPress(t,p!==null?parseInt(p):null);
+}
+function mkbPress(t,pos){
+  const el=document.getElementById('azh');
+  if(!el)return;
+  const s=el.selectionStart,e=el.selectionEnd,v=el.value;
+  el.value=v.slice(0,s)+t+v.slice(e);
+  const np=(pos!=null)?s+pos:s+t.length;
+  el.focus();el.setSelectionRange(np,np);
+  mkbPreview();
+}
+function mkbDel(){
+  const el=document.getElementById('azh');
+  if(!el)return;
+  const s=el.selectionStart,e=el.selectionEnd,v=el.value;
+  if(s===e&&s>0){el.value=v.slice(0,s-1)+v.slice(s);el.focus();el.setSelectionRange(s-1,s-1);}
+  else if(s!==e){el.value=v.slice(0,s)+v.slice(e);el.focus();el.setSelectionRange(s,s);}
+  mkbPreview();
+}
+function mkbClear(){
+  const el=document.getElementById('azh');
+  if(!el)return;
+  el.value='';el.focus();mkbPreview();
+}
+function mkbPreview(){
+  const el=document.getElementById('azh');
+  const pv=document.getElementById('mkb-preview');
+  if(!el||!pv)return;
+  pv.innerHTML=el.value
+    ?renderMath(el.value)
+    :'<span style="color:rgba(0,0,0,.3);font-family:var(--fb);font-size:14px">Preview appears here…</span>';
+}
+function mkbHTML(){
+  function k(label,t,p,cls=''){
+    const pa=p!=null?` data-p="${p}"`:'';
+    return `<button type="button" class="mkb ${cls}" data-t="${t}"${pa} onmousedown="event.preventDefault();mkbClick(this)">${label}</button>`;
+  }
+  function act(label,a,cls=''){
+    return `<button type="button" class="mkb ${cls}" data-mkb-action="${a}" onmousedown="event.preventDefault();mkbClick(this)">${label}</button>`;
+  }
+  function row(...items){return`<div class="mkb-row">${items.join('')}</div>`;}
+  function sec(title,...rows){return`<div class="mkb-section"><div class="mkb-section-title">${title}</div>${rows.join('')}</div>`;}
+  return`<div class="math-kb">
+    <div style="font-size:10px;font-weight:800;letter-spacing:.12em;color:rgba(255,255,255,.4);margin-bottom:10px;text-transform:uppercase">Math Keyboard</div>
+    ${sec('Numbers & Operators',
+      row(k('7','7'),k('8','8'),k('9','9'),k('÷','\\div ',null,'mkb-op'),k('×','\\times ',null,'mkb-op'),k('(','('),k(')',')')),
+      row(k('4','4'),k('5','5'),k('6','6'),k('+','+',null,'mkb-op'),k('−','-',null,'mkb-op'),k('=','=',null,'mkb-op'),k('≠','\\neq ',null,'mkb-op')),
+      row(k('1','1'),k('2','2'),k('3','3'),k('<','<',null,'mkb-op'),k('>','>',null,'mkb-op'),k('≤','\\leq ',null,'mkb-op'),k('≥','\\geq ',null,'mkb-op')),
+      row(k('0','0'),k('.', '.'),k('%','\\% '),k('±','\\pm '),k('|','|'),k('°','°'),act('⌫','del','mkb-red'))
+    )}
+    ${sec('Variables',
+      row(k('x','x'),k('y','y'),k('z','z'),k('n','n'),k('a','a'),k('b','b'))
+    )}
+    ${sec('Templates',
+      row(
+        k('a/b','\\frac{}{}',6,'mkb-tmpl'),
+        k('√□','\\sqrt{}',6,'mkb-tmpl'),
+        k('x²','^2'),k('x³','^3'),
+        k('xⁿ','^{}',2,'mkb-tmpl'),
+        k('|·|','||',1),
+        k('xₙ','_{}',2,'mkb-tmpl')
+      )
+    )}
+    ${sec('Greek Letters',
+      row(k('π','\\pi '),k('θ','\\theta '),k('α','\\alpha '),k('β','\\beta '),k('γ','\\gamma '),k('Δ','\\Delta '))
+    )}
+    ${sec('Functions',
+      row(k('sin','\\sin('),k('cos','\\cos('),k('tan','\\tan('),k('log','\\log('),k('ln','\\ln('))
+    )}
+    ${sec('Geometry',
+      row(k('∠','\\angle '),k('△','\\triangle '),k('⊥','\\perp '),k('∞','\\infty '))
+    )}
+    <div class="mkb-row">${act('Clear All','clear','mkb-red mkb-wide')}</div>
+  </div>`;
+}
+
 function drawTab(){
   const el=document.getElementById('tc');
   if(!el)return;
@@ -983,8 +1092,13 @@ function tabAdd(el){
     </div>
     <div class="field">
       <label>Question / Expression</label>
-      <input type="text" id="azh" placeholder="e.g. 3x + 2 = 14" autocomplete="off">
+      <input type="text" id="azh" placeholder="Use the math keyboard below…" autocomplete="off"
+             oninput="mkbPreview()" style="font-family:monospace;font-size:14px;letter-spacing:.02em">
+      <div id="mkb-preview" class="mkb-preview">
+        <span style="color:rgba(0,0,0,.3);font-family:var(--fb);font-size:14px">Preview appears here…</span>
+      </div>
     </div>
+    ${mkbHTML()}
     <div style="background:rgba(245,158,11,.1);border:2px solid var(--gold);border-radius:8px;padding:10px 14px;font-size:13px;font-weight:600;margin-bottom:16px">
       ⭐ Option 1 is always the correct answer (options are shuffled automatically).
     </div>
