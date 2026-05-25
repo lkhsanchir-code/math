@@ -253,9 +253,16 @@
                  padding:10px 12px;margin-top:8px;background:var(--pale);
                  border:3px solid var(--purple);border-radius:var(--r);
                  font-size:30px;overflow-x:auto}
+    .mkb-opt-preview{min-height:32px;display:flex;align-items:center;padding:5px 10px;
+                     margin-top:4px;background:var(--pale);
+                     border:2px solid rgba(109,40,217,.25);border-radius:8px;
+                     font-size:18px;overflow-x:auto;color:var(--ink)}
+    .mkb-active-label{font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;
+                      color:var(--gold);margin-bottom:8px}
     @media(max-width:520px){
       .mkb{min-width:34px;min-height:40px;padding:7px 8px;font-size:13px}
       .mkb-preview{font-size:22px;min-height:48px}
+      .mkb-opt-preview{font-size:15px}
     }
   </style>
 </head>
@@ -965,6 +972,16 @@ function renderPanel(){
 function switchTab(t){curTab=t;renderPanel();}
 
 // ── MATH KEYBOARD ─────────────────────────────────────────────────────────────
+let mkbTarget='azh';
+
+function mkbFocus(id){
+  mkbTarget=id;
+  const lbl=document.getElementById('mkb-active-label');
+  if(lbl){
+    const names={'azh':'Question','ao1':'Option 1','ao2':'Option 2','ao3':'Option 3','ao4':'Option 4'};
+    lbl.textContent='Editing: '+(names[id]||id);
+  }
+}
 function mkbClick(el){
   const act=el.getAttribute('data-mkb-action');
   if(act==='del'){mkbDel();return;}
@@ -975,7 +992,7 @@ function mkbClick(el){
   mkbPress(t,p!==null?parseInt(p):null);
 }
 function mkbPress(t,pos){
-  const el=document.getElementById('azh');
+  const el=document.getElementById(mkbTarget);
   if(!el)return;
   const s=el.selectionStart,e=el.selectionEnd,v=el.value;
   el.value=v.slice(0,s)+t+v.slice(e);
@@ -984,7 +1001,7 @@ function mkbPress(t,pos){
   mkbPreview();
 }
 function mkbDel(){
-  const el=document.getElementById('azh');
+  const el=document.getElementById(mkbTarget);
   if(!el)return;
   const s=el.selectionStart,e=el.selectionEnd,v=el.value;
   if(s===e&&s>0){el.value=v.slice(0,s-1)+v.slice(s);el.focus();el.setSelectionRange(s-1,s-1);}
@@ -992,17 +1009,20 @@ function mkbDel(){
   mkbPreview();
 }
 function mkbClear(){
-  const el=document.getElementById('azh');
+  const el=document.getElementById(mkbTarget);
   if(!el)return;
   el.value='';el.focus();mkbPreview();
 }
 function mkbPreview(){
-  const el=document.getElementById('azh');
-  const pv=document.getElementById('mkb-preview');
+  const el=document.getElementById(mkbTarget);
+  const isQ=mkbTarget==='azh';
+  const pvId=isQ?'mkb-preview':'mkb-prev-'+mkbTarget;
+  const pv=document.getElementById(pvId);
   if(!el||!pv)return;
-  pv.innerHTML=el.value
-    ?renderMath(el.value)
-    :'<span style="color:rgba(0,0,0,.3);font-family:var(--fb);font-size:14px">Preview appears here…</span>';
+  const empty=isQ
+    ?'<span style="color:rgba(0,0,0,.3);font-family:var(--fb);font-size:14px">Preview appears here…</span>'
+    :'<span style="color:rgba(0,0,0,.25);font-family:var(--fb);font-size:12px">math preview…</span>';
+  pv.innerHTML=el.value?renderMath(el.value,isQ):empty;
 }
 function mkbHTML(){
   function k(label,t,p,cls=''){
@@ -1015,7 +1035,10 @@ function mkbHTML(){
   function row(...items){return`<div class="mkb-row">${items.join('')}</div>`;}
   function sec(title,...rows){return`<div class="mkb-section"><div class="mkb-section-title">${title}</div>${rows.join('')}</div>`;}
   return`<div class="math-kb">
-    <div style="font-size:10px;font-weight:800;letter-spacing:.12em;color:rgba(255,255,255,.4);margin-bottom:10px;text-transform:uppercase">Math Keyboard</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+      <div style="font-size:10px;font-weight:800;letter-spacing:.12em;color:rgba(255,255,255,.4);text-transform:uppercase">Math Keyboard</div>
+      <div id="mkb-active-label" class="mkb-active-label">Editing: Question</div>
+    </div>
     ${sec('Numbers & Operators',
       row(k('7','7'),k('8','8'),k('9','9'),k('÷','\\div ',null,'mkb-op'),k('×','\\times ',null,'mkb-op'),k('(','('),k(')',')')),
       row(k('4','4'),k('5','5'),k('6','6'),k('+','+',null,'mkb-op'),k('−','-',null,'mkb-op'),k('=','=',null,'mkb-op'),k('≠','\\neq ',null,'mkb-op')),
@@ -1082,6 +1105,9 @@ function delQ(i){
 }
 
 function tabAdd(el){
+  const inp=(id,ph)=>`<input type="text" id="${id}" placeholder="${ph}" autocomplete="off"
+    onfocus="mkbFocus('${id}')" oninput="mkbPreview()"
+    style="font-family:monospace;font-size:14px;letter-spacing:.02em">`;
   el.innerHTML=`
   <div class="card">
     <div class="field">
@@ -1092,23 +1118,25 @@ function tabAdd(el){
     </div>
     <div class="field">
       <label>Question / Expression</label>
-      <input type="text" id="azh" placeholder="Use the math keyboard below…" autocomplete="off"
-             oninput="mkbPreview()" style="font-family:monospace;font-size:14px;letter-spacing:.02em">
+      ${inp('azh','e.g. 2x + 5 = 17')}
       <div id="mkb-preview" class="mkb-preview">
         <span style="color:rgba(0,0,0,.3);font-family:var(--fb);font-size:14px">Preview appears here…</span>
       </div>
     </div>
-    ${mkbHTML()}
     <div style="background:rgba(245,158,11,.1);border:2px solid var(--gold);border-radius:8px;padding:10px 14px;font-size:13px;font-weight:600;margin-bottom:16px">
       ⭐ Option 1 is always the correct answer (options are shuffled automatically).
     </div>
     ${[1,2,3,4].map(n=>`
       <div class="field">
         <label>Option ${n}${n===1?' (correct) ⭐':''}</label>
-        <input type="text" id="ao${n}" placeholder="Option ${n}…" autocomplete="off">
+        ${inp('ao'+n,'Option '+n+'…')}
+        <div id="mkb-prev-ao${n}" class="mkb-opt-preview">
+          <span style="color:rgba(0,0,0,.25);font-family:var(--fb);font-size:12px">math preview…</span>
+        </div>
       </div>`).join('')}
+    ${mkbHTML()}
     <div id="amsg"></div>
-    <button class="btn btn-purple" style="width:100%;margin-top:8px" onclick="addQ()">➕ Add Question</button>
+    <button class="btn btn-purple" style="width:100%;margin-top:16px" onclick="addQ()">➕ Add Question</button>
   </div>`;
 }
 
